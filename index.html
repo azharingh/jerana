@@ -389,12 +389,14 @@
   </div>
 </div>
 <script>
-  const SUPABASE_URL = "https://jyqochyquopwanldnbwm.supabase.co/rest/v1/";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cW9jaHlxdW9wd2FubGRuYndtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NjkyNjUsImV4cCI6MjEwMzU0NTI2NX0.K4eIL-wCvOWJIukHBnAAIMjPAEKjCRyiflOect41xdI";
-
-const sb = (SUPABASE_URL.includes("YOUR-PROJECT"))
-  ? null
-  : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Project URL from Supabase → Settings → API (no /rest/v1 suffix)
+  const SUPABASE_URL = "https://dhcvniwtziiyxujbntmq.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoY3ZuaXd0emlpeXh1amJudG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDU4NzEsImV4cCI6MjA5NjQyMTg3MX0.nMMo2cwuazZGHH8wYBR4SnWMcIEL0B1wXMzecbmhGCI";
+  const sb = (SUPABASE_URL.includes("YOUR-PROJECT") || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("YOUR-ANON"))
+    ? null
+    : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      });
 
 /* ---------------------------------------------------------------------- */
 /* STATE                                                                   */
@@ -584,30 +586,80 @@ function setAuthMode(mode) {
   document.getElementById('auth-submit-btn').textContent = mode === 'signup' ? 'Зарегистрироваться' : 'Войти';
 }
 
+function authErrorMessage(err) {
+  const msg = (err?.message || '').toLowerCase();
+  if (msg.includes('invalid login credentials')) return 'Неверный email или пароль';
+  if (msg.includes('user already registered')) return 'Этот email уже зарегистрирован — войдите';
+  if (msg.includes('email not confirmed')) return 'Подтвердите email по ссылке из письма, затем войдите';
+  if (msg.includes('password')) return 'Пароль должен быть не короче 6 символов';
+  return err?.message || 'Ошибка авторизации';
+}
+
+async function ensureProfile(user, fullName) {
+  if (!sb || !user) return;
+  const name = fullName || user.user_metadata?.full_name || user.email?.split('@')[0] || '';
+  await sb.from('profiles').upsert(
+    { id: user.id, full_name: name },
+    { onConflict: 'id', ignoreDuplicates: false }
+  );
+}
+
 async function submitAuth() {
   if (!sb) { toast('Backend не подключён — заполните SUPABASE_URL/KEY в коде', 'error'); return; }
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const fullName = document.getElementById('auth-name').value.trim();
   const errEl = document.getElementById('auth-error');
+  const btn = document.getElementById('auth-submit-btn');
   errEl.classList.add('hidden');
 
   if (!email || !password) { errEl.textContent = 'Заполните email и пароль'; errEl.classList.remove('hidden'); return; }
+  if (authMode === 'signup' && password.length < 6) {
+    errEl.textContent = 'Пароль — минимум 6 символов';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if (authMode === 'signup' && !fullName) {
+    errEl.textContent = 'Укажите имя для профиля';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  const prevLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = authMode === 'signup' ? 'Регистрация…' : 'Вход…';
 
   try {
     if (authMode === 'signup') {
-      const { error } = await sb.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      });
       if (error) throw error;
-      toast('Аккаунт создан! Проверьте почту, если требуется подтверждение.', 'success');
+      if (data.user) await ensureProfile(data.user, fullName);
+      if (data.session) {
+        await refreshSession();
+        toast('Аккаунт создан — добро пожаловать!', 'success');
+        closeAuthModal();
+      } else {
+        toast('Аккаунт создан. Проверьте почту и подтвердите email, затем войдите.', 'success');
+        setAuthMode('login');
+      }
     } else {
-      const { error } = await sb.auth.signInWithPassword({ email, password });
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      if (data.user) await ensureProfile(data.user);
+      await refreshSession();
       toast('Вы вошли в аккаунт', 'success');
+      closeAuthModal();
     }
-    closeAuthModal();
   } catch (err) {
-    errEl.textContent = err.message || 'Ошибка авторизации';
+    errEl.textContent = authErrorMessage(err);
     errEl.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = prevLabel;
   }
 }
 
@@ -617,28 +669,32 @@ async function signOut() {
   toast('Вы вышли из аккаунта', 'info');
 }
 
+async function loadCurrentProfile() {
+  if (!sb || !currentUser) { currentProfile = null; return; }
+  const { data, error } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+  if (error) console.warn('profiles', error.message);
+  currentProfile = data || null;
+  if (!currentProfile) {
+    await ensureProfile(currentUser);
+    const { data: again } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+    currentProfile = again || null;
+  }
+}
+
 async function refreshSession() {
   if (!sb) { renderAuthZone(); return; }
   const { data: { session } } = await sb.auth.getSession();
   currentUser = session?.user || null;
-  if (currentUser) {
-    const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-    currentProfile = data || null;
-  } else {
-    currentProfile = null;
-  }
+  await loadCurrentProfile();
   renderAuthZone();
+  renderProfileGate();
+  renderSubmitGate();
 }
 
 if (sb) {
   sb.auth.onAuthStateChange(async (_event, session) => {
     currentUser = session?.user || null;
-    if (currentUser) {
-      const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
-      currentProfile = data || null;
-    } else {
-      currentProfile = null;
-    }
+    await loadCurrentProfile();
     renderAuthZone();
     renderProfileGate();
     renderSubmitGate();
