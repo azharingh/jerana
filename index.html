@@ -244,7 +244,7 @@
             <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;"><i data-lucide="sprout" style="width:19px;height:19px;color:var(--green-dark);"></i> Удобрите почву</h3>
             <p style="color:var(--muted);font-size:13.5px;margin-bottom:18px;">Превратите отсортированные отходы в удобрение прямо на месте.</p>
             <ol style="display:grid;gap:12px;padding-left:20px;color:var(--ink);font-size:14px;line-height:1.6;">
-              <li>Выкопайте траншею или яму глубиной 20–30 см на выбранном участке земли.</li>
+              <li>Выкопайте траншею или яму глубиной 20–40 см на выбранном участке земли.</li>
               <li>Равномерно распределите отсортированные отходы слоем 5–10 см.</li>
               <li>Присыпьте слоем земли (3–5 см) и слегка увлажните.</li>
               <li>Перемешивайте раз в 1–2 недели для доступа кислорода.</li>
@@ -389,18 +389,15 @@
   </div>
 </div>
 <script>
-  // Project URL from Supabase → Settings → API (no /rest/v1 suffix)
-  const SUPABASE_URL = "https://dhcvniwtziiyxujbntmq.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoY3ZuaXd0emlpeXh1amJudG1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NDU4NzEsImV4cCI6MjA5NjQyMTg3MX0.nMMo2cwuazZGHH8wYBR4SnWMcIEL0B1wXMzecbmhGCI";
+  const SUPABASE_URL = "https://crmoqslcdklaxunpnfxg.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNybW9xc2xjZGtsYXh1bnBuZnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTM5ODksImV4cCI6MjEwNjE2OTk4OX0.TG4TeEOL5mSH0akhk8i4y8DQLBDimI6Tp1eU6Hk75lY";
   const sb = (SUPABASE_URL.includes("YOUR-PROJECT") || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes("YOUR-ANON"))
     ? null
     : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
       });
 
-/* ---------------------------------------------------------------------- */
-/* STATE                                                                   */
-/* ---------------------------------------------------------------------- */
+
 let currentUser = null;
 let currentProfile = null;
 let wasteTypes = [];
@@ -411,9 +408,7 @@ let authMode = 'login';
 let leafletMap = null;
 let mapInitialized = false;
 
-/* ---------------------------------------------------------------------- */
-/* TOASTS                                                                  */
-/* ---------------------------------------------------------------------- */
+
 function toast(message, type = 'info') {
   const stack = document.getElementById('toast-stack');
   const el = document.createElement('div');
@@ -425,9 +420,7 @@ function toast(message, type = 'info') {
   setTimeout(() => { el.style.transition = 'opacity .3s, transform .3s'; el.style.opacity = '0'; el.style.transform = 'translateX(30px)'; setTimeout(() => el.remove(), 300); }, 4200);
 }
 
-/* ---------------------------------------------------------------------- */
-/* NAV                                                                     */
-/* ---------------------------------------------------------------------- */
+
 function moveIndicator(tabEl) {
   const indicator = document.getElementById('nav-indicator');
   if (!tabEl || window.innerWidth <= 640) return;
@@ -459,9 +452,7 @@ document.querySelectorAll('.nav-tab, .brand').forEach(el => {
   el.addEventListener('click', () => activateTab(el.getAttribute('data-tab')));
 });
 
-/* ---------------------------------------------------------------------- */
-/* SCROLL REVEAL / COUNTERS / BARS                                         */
-/* ---------------------------------------------------------------------- */
+
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((e, i) => {
     if (e.isIntersecting) {
@@ -504,18 +495,14 @@ function animateVisibleBars() {
   });
 }
 
-/* ---------------------------------------------------------------------- */
-/* LIGHTBOX                                                                */
-/* ---------------------------------------------------------------------- */
+
 function openLightbox(src) {
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
-/* ---------------------------------------------------------------------- */
-/* PHOTO CAPTURE                                                           */
-/* ---------------------------------------------------------------------- */
+
 function handlePhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -548,9 +535,7 @@ function removePhoto(event) {
   document.getElementById('camera-input').value = '';
 }
 
-/* ---------------------------------------------------------------------- */
-/* AUTH                                                                    */
-/* ---------------------------------------------------------------------- */
+
 function renderAuthZone() {
   const zone = document.getElementById('auth-zone');
   if (currentUser) {
@@ -701,9 +686,7 @@ if (sb) {
   });
 }
 
-/* ---------------------------------------------------------------------- */
-/* GATES                                                                   */
-/* ---------------------------------------------------------------------- */
+
 function renderSubmitGate() {
   document.getElementById('submit-guest').classList.toggle('hidden', !!currentUser);
   document.getElementById('submit-wizard-wrap').classList.toggle('hidden', !currentUser);
@@ -718,9 +701,7 @@ function renderProfileGate() {
   }
 }
 
-/* ---------------------------------------------------------------------- */
-/* SUBMISSION WIZARD (collect & sort -> fertilize -> photo & submit)       */
-/* ---------------------------------------------------------------------- */
+
 let wizardStep = 1;
 
 function goToStep(n) {
@@ -750,9 +731,7 @@ function tryGoToStep(n) {
   goToStep(n);
 }
 
-/* ---------------------------------------------------------------------- */
-/* REFERENCE DATA (public read)                                            */
-/* ---------------------------------------------------------------------- */
+
 let fertilityTargetKg = 150; // fallback; overwritten by app_settings below
 
 async function loadReferenceData() {
@@ -832,9 +811,7 @@ function skeletonRows(n) {
   return Array.from({ length: n }).map(() => `<div class="skel" style="height:64px;margin-bottom:14px;"></div>`).join('');
 }
 
-/* ---------------------------------------------------------------------- */
-/* SUBMIT WASTE                                                            */
-/* ---------------------------------------------------------------------- */
+
 async function submitWaste() {
   if (!sb || !currentUser) { toast('Войдите в аккаунт, чтобы сдать отходы', 'error'); return; }
   const wasteTypeId = document.getElementById('waste-type-select').value;
@@ -877,9 +854,7 @@ async function submitWaste() {
   }
 }
 
-/* ---------------------------------------------------------------------- */
-/* PROFILE                                                                  */
-/* ---------------------------------------------------------------------- */
+
 async function loadProfile() {
   document.getElementById('submissions-history').innerHTML = skeletonRows(3);
   const [{ data: stats }, { data: subs }] = await Promise.all([
@@ -943,9 +918,7 @@ function animateStatBox(id, target) {
   requestAnimationFrame(tick);
 }
 
-/* ---------------------------------------------------------------------- */
-/* ADMIN                                                                    */
-/* ---------------------------------------------------------------------- */
+
 async function loadAdminQueue() {
   if (!currentProfile?.is_admin) return;
   const list = document.getElementById('admin-list');
@@ -995,9 +968,7 @@ async function reviewSubmission(id, status) {
   loadAdminQueue();
 }
 
-/* ---------------------------------------------------------------------- */
-/* MAP                                                                      */
-/* ---------------------------------------------------------------------- */
+
 function focusLocation(lat, lng) {
   if (leafletMap) { leafletMap.flyTo([lat, lng], 12, { duration: 0.8 }); }
 }
@@ -1026,9 +997,7 @@ const style = document.createElement('style');
 style.textContent = `@keyframes pulseRing{0%{transform:scale(.6);opacity:.7;}100%{transform:scale(1.6);opacity:0;}}`;
 document.head.appendChild(style);
 
-/* ---------------------------------------------------------------------- */
-/* INIT                                                                     */
-/* ---------------------------------------------------------------------- */
+
 document.getElementById('submission-date').value = new Date().toISOString().split('T')[0];
 lucide.createIcons();
 window.addEventListener('resize', () => moveIndicator(document.querySelector('.nav-tab.active')));
