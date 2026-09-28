@@ -154,6 +154,24 @@ create trigger submissions_compute_reward
 -- Row Level Security
 -- ---------------------------------------------------------------------------
 
+-- Admin checks must not query profiles inside profiles RLS (infinite recursion).
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select p.is_admin from public.profiles p where p.id = auth.uid()),
+    false
+  );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+grant execute on function public.is_admin() to anon;
+
 alter table public.profiles enable row level security;
 alter table public.waste_types enable row level security;
 alter table public.regions enable row level security;
@@ -170,12 +188,7 @@ create policy "profiles read own"
 drop policy if exists "profiles read admin" on public.profiles;
 create policy "profiles read admin"
   on public.profiles for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.is_admin = true
-    )
-  );
+  using (public.is_admin());
 
 drop policy if exists "profiles insert own" on public.profiles;
 create policy "profiles insert own"
@@ -223,22 +236,12 @@ create policy "submissions read own"
 drop policy if exists "submissions admin read" on public.submissions;
 create policy "submissions admin read"
   on public.submissions for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.is_admin = true
-    )
-  );
+  using (public.is_admin());
 
 drop policy if exists "submissions admin update" on public.submissions;
 create policy "submissions admin update"
   on public.submissions for update
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.is_admin = true
-    )
-  );
+  using (public.is_admin());
 
 -- my_stats (view uses submissions RLS under the hood when queried as user)
 grant select on public.my_stats to authenticated;
@@ -275,10 +278,7 @@ create policy "waste photos admin read"
   to authenticated
   using (
     bucket_id = 'waste-photos'
-    and exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.is_admin = true
-    )
+    and public.is_admin()
   );
 
 -- ---------------------------------------------------------------------------
