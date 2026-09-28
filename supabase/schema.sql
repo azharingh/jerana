@@ -13,7 +13,7 @@ create table if not exists public.profiles (
 
 create table if not exists public.waste_types (
   id uuid primary key default gen_random_uuid(),
-  name text not null,
+  name text not null unique,
   description text not null default '',
   rate_gems numeric(10, 2) not null default 0,
   is_active boolean not null default true,
@@ -289,13 +289,14 @@ insert into public.app_settings (key, value)
 values ('fertility_target_kg', '150')
 on conflict (key) do nothing;
 
+-- More types: supabase/seed_waste_types.sql
 insert into public.waste_types (name, description, rate_gems, is_active) values
   ('Овощные очистки', 'Кожура картофеля, моркови, лука и других овощей', 8, true),
   ('Фруктовые очистки', 'Кожура яблок, бананов, цитрусовых', 10, true),
   ('Садовые отходы', 'Скошенная трава, листья, мелкие ветки', 6, true),
   ('Кофейная гуща', 'Использованный молотый кофе', 12, true),
   ('Яичная скорлупа', 'Промытая и измельчённая скорлупа', 9, true)
-on conflict do nothing;
+on conflict (name) do nothing;
 
 insert into public.regions (name, fertility) values
   ('Алматы', 42),
