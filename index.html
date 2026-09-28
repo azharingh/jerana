@@ -438,7 +438,10 @@ function activateTab(id) {
   section.classList.remove('tab-content'); void section.offsetWidth; section.classList.add('tab-content'); // restart zoom-in anim
 
   if (id === 'profile') renderProfileGate();
-  if (id === 'submit') renderSubmitGate();
+  if (id === 'submit') {
+    renderSubmitGate();
+    if (currentUser && wasteTypes.length === 0) loadReferenceData();
+  }
   if (id === 'locations') setTimeout(initMap, 80);
   if (id === 'admin') loadAdminQueue();
 
@@ -690,7 +693,10 @@ if (sb) {
 function renderSubmitGate() {
   document.getElementById('submit-guest').classList.toggle('hidden', !!currentUser);
   document.getElementById('submit-wizard-wrap').classList.toggle('hidden', !currentUser);
-  if (currentUser) goToStep(1);
+  if (currentUser) {
+    populateSubmitSelects();
+    goToStep(1);
+  }
 }
 function renderProfileGate() {
   document.getElementById('profile-guest').classList.toggle('hidden', !!currentUser);
@@ -734,22 +740,43 @@ function tryGoToStep(n) {
 
 let fertilityTargetKg = 150; // fallback; overwritten by app_settings below
 
+async function fetchWasteTypes() {
+  let { data, error } = await sb.from('waste_types').select('*').eq('is_active', true).order('name');
+  if (error) {
+    const retry = await sb.from('waste_types').select('*').order('name');
+    if (retry.error) {
+      toast('Не удалось загрузить виды отходов: ' + retry.error.message, 'error');
+      return [];
+    }
+    data = (retry.data || []).filter(w => w.is_active !== false);
+  }
+  return data || [];
+}
+
 async function loadReferenceData() {
   if (!sb) { renderDemoNotice(); return; }
-  const [{ data: loc }, { data: wt }, { data: reg }, { data: settings }] = await Promise.all([
-    sb.from('locations').select('*').order('name'),
-    sb.from('waste_types').select('*').eq('is_active', true).order('name'),
-    sb.from('regions').select('*').order('name'),
-    sb.from('app_settings').select('*').eq('key', 'fertility_target_kg').maybeSingle(),
-  ]);
-  locations = loc || [];
-  wasteTypes = wt || [];
-  regions = reg || [];
-  if (settings?.value) fertilityTargetKg = Number(settings.value);
-  renderLocations();
-  renderWasteTypes();
-  renderFertilityMap();
-  populateSubmitSelects();
+  try {
+    const [locRes, wt, regRes, settingsRes] = await Promise.all([
+      sb.from('locations').select('*').order('name'),
+      fetchWasteTypes(),
+      sb.from('regions').select('*').order('name'),
+      sb.from('app_settings').select('*').eq('key', 'fertility_target_kg').maybeSingle(),
+    ]);
+    if (locRes.error) console.warn('locations', locRes.error.message);
+    if (regRes.error) console.warn('regions', regRes.error.message);
+    locations = locRes.data || [];
+    wasteTypes = wt;
+    regions = regRes.data || [];
+    if (settingsRes.data?.value) fertilityTargetKg = Number(settingsRes.data.value);
+    renderLocations();
+    renderWasteTypes();
+    renderFertilityMap();
+    populateSubmitSelects();
+  } catch (err) {
+    console.error(err);
+    toast('Ошибка загрузки данных: ' + (err.message || err), 'error');
+    populateSubmitSelects();
+  }
 }
 
 function renderDemoNotice() {
@@ -758,8 +785,11 @@ function renderDemoNotice() {
 
 function populateSubmitSelects() {
   const wtSel = document.getElementById('waste-type-select');
+  if (!wtSel) return;
+  const prev = wtSel.value;
   wtSel.innerHTML = '<option value="">-- Выберите тип отходов --</option>' +
-    wasteTypes.map(w => `<option value="${w.id}" data-rate="${w.rate_gems}">${w.name}</option>`).join('');
+    wasteTypes.map(w => `<option value="${w.id}" data-rate="${w.rate_gems ?? 0}">${w.name}</option>`).join('');
+  if (prev && wasteTypes.some(w => w.id === prev)) wtSel.value = prev;
 }
 
 function updateRewardEstimate() {
@@ -778,7 +808,9 @@ function updateRewardEstimate() {
 }
 
 function renderLocations() {
-  document.getElementById('locations-list').innerHTML = locations.length ? locations.map(loc => `
+  const listEl = document.getElementById('locations-list');
+  if (!listEl) return;
+  listEl.innerHTML = locations.length ? locations.map(loc => `
     <div class="location-item" onclick="focusLocation(${loc.lat},${loc.lng})">
       <div class="location-name">${loc.name}</div>
       <div class="location-address">📍 ${loc.address}</div>
