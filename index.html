@@ -389,11 +389,51 @@
   </div>
 </div>
 
-<footer class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-  <p class="text-slate-500 text-sm">
-    &copy; <span id="year">2026</span> JerAna. Все права защищены.
-  </p>
-</footer>
+<!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="core-strip" style="height:6px;"></div>
+ 
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="18" fill="#f0fdf4" stroke="#10b981" stroke-width="1.5"/>
+              <circle cx="20" cy="20" r="12.5" fill="none" stroke="#10b981" stroke-width="1.5" opacity=".55"/>
+              <circle cx="20" cy="20" r="7" fill="none" stroke="#059669" stroke-width="1.5" opacity=".7"/>
+              <circle cx="20" cy="20" r="2.5" fill="#10b981"/>
+            </svg>
+            <div>
+              <div class="brand-name">JerAna</div>
+              <div class="brand-tag">Живая почва</div>
+            </div>
+          </div>
+          <p class="footer-desc">Проект восстановления плодородной почвы Казахстана. Сдавайте отходы, удобряйте землю, получайте гемы.</p>
+        </div>
+ 
+        <nav class="footer-links">
+          <span class="footer-links-title">Разделы</span>
+          <button class="footer-link" data-tab="about">О проекте</button>
+          <button class="footer-link" data-tab="waste-types">Виды отходов</button>
+          <button class="footer-link" data-tab="submit">Сдать отходы</button>
+          <button class="footer-link" data-tab="fertility">Плодородие</button>
+        </nav>
+ 
+        <div class="footer-social-block">
+          <span class="footer-links-title">Контакты</span>
+          <div class="footer-socials">
+            <a class="social-btn" href="https://www.instagram.com/jerana.project?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+            <a class="social-btn" href="tel:+77773439713" target="_blank" rel="noopener" aria-label="Телефон: +77773439713"><i data-lucide="send"></i></a>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="footer-bottom">
+        <span>© <span id="footer-year"></span> JerAna. Все права защищены.</span>
+        <span class="footer-made">Сделано для живой земли 🌱</span>
+      </div>
+    </div>
+  </footer>
 
 <script>
   const SUPABASE_URL = "https://crmoqslcdklaxunpnfxg.supabase.co";
