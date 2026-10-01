@@ -70,8 +70,61 @@
           <div style="margin-top:26px;" class="core-strip"></div>
           <div class="core-legend"><span>Критическая почва</span><span>Средняя</span><span>Плодородная</span></div>
         </div>
-        
-        <div style="
+
+        <div>
+        <div class="core-sample">
+          <div class="core-stage">
+            <div class="core-3d">
+              <svg class="core-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="coreGreen" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/>
+                  </linearGradient>
+                  <linearGradient id="coreAmber" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#f59e0b"/>
+                  </linearGradient>
+                  <linearGradient id="coreRed" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#b45309"/><stop offset="100%" stop-color="#dc2626"/>
+                  </linearGradient>
+                  <radialGradient id="coreCap" cx="35%" cy="30%" r="75%">
+                    <stop offset="0%" stop-color="#ecfdf5"/><stop offset="55%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#059669"/>
+                  </radialGradient>
+                  <radialGradient id="coreBottomCap" cx="40%" cy="35%" r="75%">
+                    <stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#7f1d1d"/>
+                  </radialGradient>
+                  <pattern id="coreHatch" width="9" height="9" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+                    <line x1="0" y1="0" x2="0" y2="9" stroke="#000" stroke-width="1" opacity=".18"/>
+                  </pattern>
+                </defs>
+
+                <ellipse class="core-shadow" cx="100" cy="286" rx="66" ry="9"/>
+
+                <path class="core-layer core-green" fill="url(#coreGreen)" d="M10,40 L10,124 C60,116 140,132 190,124 L190,40 Z"/>
+                <path class="core-layer core-amber" fill="url(#coreAmber)" d="M10,124 C60,116 140,132 190,124 L190,191 C140,183 60,199 10,191 Z"/>
+                <path class="core-layer core-red" fill="url(#coreRed)" d="M10,191 C60,199 140,183 190,191 L190,262 L10,262 Z"/>
+                <rect class="core-grain" x="10" y="40" width="180" height="222"/>
+
+                <ellipse cx="100" cy="272" rx="90" ry="14" fill="url(#coreBottomCap)"/>
+                <ellipse cx="100" cy="26" rx="90" ry="14" fill="url(#coreCap)"/>
+                <ellipse class="core-top-rim" cx="100" cy="26" rx="90" ry="14"/>
+
+                <g class="core-specks">
+                  <circle class="speck" cx="45" cy="255" r="2.2" style="animation-duration:5.2s;animation-delay:0s;"/>
+                  <circle class="speck" cx="80" cy="250" r="1.6" style="animation-duration:6.1s;animation-delay:.8s;"/>
+                  <circle class="speck" cx="120" cy="258" r="2" style="animation-duration:5.6s;animation-delay:1.6s;"/>
+                  <circle class="speck" cx="155" cy="248" r="1.8" style="animation-duration:6.6s;animation-delay:2.4s;"/>
+                  <circle class="speck" cx="65" cy="252" r="1.4" style="animation-duration:5.9s;animation-delay:3.2s;"/>
+                  <circle class="speck" cx="140" cy="256" r="1.6" style="animation-duration:6.3s;animation-delay:1.1s;"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <p class="core-caption">Слой за слоем — к живой земле</p>
+        </div>
+        </div>
+      </div>
+
+      <div style="
         max-width: 640px;
         margin: 2rem auto;
         padding: 2.5rem;
@@ -168,59 +221,6 @@
               <div style="color: #6B7280; font-size: 0.92rem;">Фиксируешь прогресс — и получаешь награду.</div>
             </div>
           </div>
-        </div>
-      </div>
-
-        <div>
-        <div class="core-sample">
-          <div class="core-stage">
-            <div class="core-3d">
-              <svg class="core-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="coreGreen" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/>
-                  </linearGradient>
-                  <linearGradient id="coreAmber" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#f59e0b"/>
-                  </linearGradient>
-                  <linearGradient id="coreRed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#b45309"/><stop offset="100%" stop-color="#dc2626"/>
-                  </linearGradient>
-                  <radialGradient id="coreCap" cx="35%" cy="30%" r="75%">
-                    <stop offset="0%" stop-color="#ecfdf5"/><stop offset="55%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#059669"/>
-                  </radialGradient>
-                  <radialGradient id="coreBottomCap" cx="40%" cy="35%" r="75%">
-                    <stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#7f1d1d"/>
-                  </radialGradient>
-                  <pattern id="coreHatch" width="9" height="9" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
-                    <line x1="0" y1="0" x2="0" y2="9" stroke="#000" stroke-width="1" opacity=".18"/>
-                  </pattern>
-                </defs>
-
-                <ellipse class="core-shadow" cx="100" cy="286" rx="66" ry="9"/>
-
-                <path class="core-layer core-green" fill="url(#coreGreen)" d="M10,40 L10,124 C60,116 140,132 190,124 L190,40 Z"/>
-                <path class="core-layer core-amber" fill="url(#coreAmber)" d="M10,124 C60,116 140,132 190,124 L190,191 C140,183 60,199 10,191 Z"/>
-                <path class="core-layer core-red" fill="url(#coreRed)" d="M10,191 C60,199 140,183 190,191 L190,262 L10,262 Z"/>
-                <rect class="core-grain" x="10" y="40" width="180" height="222"/>
-
-                <ellipse cx="100" cy="272" rx="90" ry="14" fill="url(#coreBottomCap)"/>
-                <ellipse cx="100" cy="26" rx="90" ry="14" fill="url(#coreCap)"/>
-                <ellipse class="core-top-rim" cx="100" cy="26" rx="90" ry="14"/>
-
-                <g class="core-specks">
-                  <circle class="speck" cx="45" cy="255" r="2.2" style="animation-duration:5.2s;animation-delay:0s;"/>
-                  <circle class="speck" cx="80" cy="250" r="1.6" style="animation-duration:6.1s;animation-delay:.8s;"/>
-                  <circle class="speck" cx="120" cy="258" r="2" style="animation-duration:5.6s;animation-delay:1.6s;"/>
-                  <circle class="speck" cx="155" cy="248" r="1.8" style="animation-duration:6.6s;animation-delay:2.4s;"/>
-                  <circle class="speck" cx="65" cy="252" r="1.4" style="animation-duration:5.9s;animation-delay:3.2s;"/>
-                  <circle class="speck" cx="140" cy="256" r="1.6" style="animation-duration:6.3s;animation-delay:1.1s;"/>
-                </g>
-              </svg>
-            </div>
-          </div>
-          <p class="core-caption">Слой за слоем — к живой земле</p>
-        </div>
         </div>
       </div>
 
